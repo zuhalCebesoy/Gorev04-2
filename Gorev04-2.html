@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sayısal Loto Oyunu</title>
+    <style>
+      input {
+        max-width: 10%;
+      }
+      input[readonly] {
+        background-color: lightgrey;
+        border: 1px solid grey;
+        color: #555;
+        border-radius: 3px;
+      }
+
+      input:not([readonly]) {
+        background-color: white;
+        border: 1px solid #ccc;
+        color: black;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sayısal Loto Oyunu</h1>
+    <p>Aşağıdaki inputlara tahminlerinizi giriniz;</p>
+    <div id="divTahmin">
+      <input type="number" id="inpTahmin1" class="inpSayi" />
+      <input type="number" id="inpTahmin2" class="inpSayi" />
+      <input type="number" id="inpTahmin3" class="inpSayi" />
+      <input type="number" id="inpTahmin4" class="inpSayi" />
+      <input type="number" id="inpTahmin5" class="inpSayi" />
+      <input type="number" id="inpTahmin6" class="inpSayi" />
+      <button id="btnTahminGir" onclick="tahminGir()">Tahmin Gir</button>
+    </div>
+
+    <hr style="border: 1px solid gray" />
+    <div id="divKura">
+      <button id="btnKuraCek" onclick="kuraCek()">Kurayı Çek</button>
+      <p>Loto Sayıları</p>
+      <input type="number" id="inpKura1" class="inpKura" />
+      <input type="number" id="inpKura2" class="inpKura" />
+      <input type="number" id="inpKura3" class="inpKura" />
+      <input type="number" id="inpKura4" class="inpKura" />
+      <input type="number" id="inpKura5" class="inpKura" />
+      <input type="number" id="inpKura6" class="inpKura" />
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        document.getElementById("btnKuraCek").disabled = true;
+        var inputKura = document.querySelectorAll(".inpKura");
+        inputKura.forEach((input) => {
+          input.readOnly = true;
+          //input.style.backgroundColor = "lightgrey";
+          //input.style.border = "1px solid gray";
+        });
+
+        var inputSayi = document.querySelectorAll(".inpSayi");
+        var tahminler = [];
+
+        inputSayi.forEach((input) => {
+          input.addEventListener("blur", () => {
+            var value = parseFloat(input.value);
+
+            if (value > 0 && value < 50 && !isNaN(value)) {
+              if (tahminler.includes(value)) {
+                alert("Aynı tahmin bir kez girilebilir.");
+                input.value = "";
+                input.focus();
+              } else {
+                tahminler.push(value);
+              }
+            } else {
+              if (input.value !== "") {
+                alert("1-49 arası geçerli bir sayı giriniz.");
+                input.value = "";
+                input.focus();
+              }
+            }
+          });
+        });
+      });
+
+      function tahminGir() {
+        var inputSayi = document.querySelectorAll(".inpSayi");
+        var bosInputSayisi = 0;
+        var tahminler = [];
+
+        for (let i = 0; i < inputSayi.length; i++) {
+          if (inputSayi[i].value.trim() === "") {
+            bosInputSayisi++;
+            inputSayi[i].focus();
+            break;
+          }
+        }
+        if (bosInputSayisi > 0) {
+          alert("Tahminler boş geçilemez. Lütfen tüm alanları doldurun.");
+          return;
+        }
+
+        inputSayi.forEach((input) => {
+          var value = parseFloat(input.value.trim());
+          if (!isNaN(value)) {
+            tahminler.push(value);
+          }
+        });
+
+        tahminler.sort(function (a, b) {
+          return a - b;
+        });
+
+        inputSayi.forEach((input, index) => {
+          input.value = tahminler[index];
+        });
+        document.getElementById("btnKuraCek").disabled = false;
+        document.getElementById("btnTahminGir").disabled = true;
+        var inputKura = document.querySelectorAll(".inpKura");
+        inputKura.forEach((input) => {
+          input.readOnly = true;
+        });
+        var inputSayi = document.querySelectorAll(".inpSayi");
+        inputSayi.forEach((input) => {
+          input.readOnly = true;
+        });
+      }
+
+      function kuraCek() {
+        document.getElementById("btnKuraCek").disabled = true;
+        document.getElementById("btnTahminGir").disabled = true;
+        rndSayilar = [];
+
+        while (rndSayilar.length < 6) {
+          var randomSayi = Math.floor(Math.random() * 49) + 1;
+          if (!rndSayilar.includes(randomSayi)) {
+            rndSayilar.push(randomSayi);
+          }
+        }
+        rndSayilar.sort(function (a, b) {
+          return a - b;
+        });
+        var inputKura = document.querySelectorAll(".inpKura");
+        inputKura.forEach((input, index) => {
+          input.value = rndSayilar[index];
+        });
+
+        var inputSayi = document.querySelectorAll(".inpSayi");
+        var eslesenSayilar = [];
+        inputSayi.forEach((input1) => {
+          rndSayilar.forEach((sayi) => {
+            if (parseFloat(input1.value) === sayi) {
+              eslesenSayilar.push(sayi);
+            }
+          });
+        });
+
+        var sonucYaz = document.createElement("p");
+        sonucYaz.innerHTML = `Bilinen Sayılar: ${eslesenSayilar.join(", ")}<br>${
+          eslesenSayilar.length
+        } sayı bildiniz.`;
+        document.getElementById("divKura").appendChild(sonucYaz);
+      }
+    </script>
+  </body>
+</html>
